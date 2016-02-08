@@ -8,9 +8,37 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r loadingpackages}
+
+```r
 library(dplyr)
+```
+
+```
+## Warning: package 'dplyr' was built under R version 3.1.3
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(ggplot2)
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.1.3
+```
+
+```r
 setwd("D:/zhengcl/Datascience/reproducible4")
 rawdata <- read.csv("activity.csv")
 ```
@@ -18,37 +46,66 @@ rawdata <- read.csv("activity.csv")
 ## What is mean total number of steps taken per day?
 
 ### Here is the histogram for mean total number of steps taken per day:
-```{r}
+
+```r
 days <- group_by(rawdata, date)
 daystep <- summarize(days,  steps=sum(steps, na.rm=TRUE))
 q <- ggplot(daystep, aes(steps)) + geom_histogram(bins=10)
 q   
+```
 
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png) 
+
+```r
 avestep <- mean(daystep$steps)
 medianstep <- median(daystep$steps)
 summary(daystep$steps)
 ```
 
-The average total number of steps taken per day is `r avestep` and the median is `r medianstep`. 
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##       0    6778   10400    9354   12810   21190
+```
+
+The average total number of steps taken per day is 9354.2295082 and the median is 10395. 
 
 ## What is the average daily activity pattern?
 
 This time series plot shows the average daily activity pattern:
-```{r}
+
+```r
 intervals <- group_by(rawdata, interval)
 timeser <- summarize(intervals,  steps=mean(steps, na.rm=TRUE))
 q <- ggplot(timeser, aes(interval, steps)) + geom_line()
 q
+```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
+
+```r
 maxstep <- max(timeser$steps)
 maxinterval <- timeser[match(maxstep,timeser$steps),1]
 maxinterval
 ```
-The `r maxinterval` 5-min interval contains maxmim number of steps.
+
+```
+## Source: local data frame [1 x 1]
+## 
+##   interval
+##      (int)
+## 1      835
+```
+The 835 5-min interval contains maxmim number of steps.
 
 ## Imputing missing values
 
 ### Here is the histogram showing daily activity distribution after missing values are filled in:
-```{r }
+
+```r
 numofmissing <- sum(is.na(rawdata))
 # this function replace NA in a data frame with mean value in that interval and return a data frame with 
 # the missing data filled in
@@ -65,14 +122,29 @@ days1 <- group_by(rawdata1, date)
 daystep1 <- summarize(days1,  steps=sum(steps))
 q <- ggplot(daystep1, aes(steps)) + geom_histogram(bins=10)
 q
+```
+
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
+
+```r
 avestep1 <- mean(daystep1$steps)
 medianstep1 <- median(daystep1$steps)
 summary(daystep1$steps)
 ```
-We can see the original data have `r numofmissing` missing value. After they are filled in, both numbers of mean and median are increased, however, imputing missing value has biger effect on the calculationg of mean value.   
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    9819   10770   10770   12810   21190
+```
+We can see the original data have 2304 missing value. After they are filled in, both numbers of mean and median are increased, however, imputing missing value has biger effect on the calculationg of mean value.   
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 rawdata1$date <- as.Date(rawdata1$date)
 weekday <- c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')
 rawdata2 <- mutate(rawdata1,wday=factor((weekdays(rawdata1$date) %in% weekday),levels=c(FALSE, TRUE), labels=c('weekend', 'weekday'))) 
@@ -82,5 +154,7 @@ timeser2 <- summarize(intervals1,  steps=mean(steps))
 g <- ggplot(timeser2, aes(interval, steps)) + geom_line() + facet_grid(wday~ .)
 g
 ```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
 
 From the plot, we can see the person in weekends is more active than weekdays.
